@@ -1,0 +1,92 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Desimartini </title> 
+</head>
+<body>
+
+<div class=" w100% mt50 bor_bot" >
+    <div class="container-fluid breadcrumb_wrap">
+            <div class="container">
+                <div class="row">
+                    <h1>Visualizations</h1>
+
+                </div>
+            </div>
+    </div>
+    <div class="container mt20 ng-scope" style="padding: 20px;">
+        <div class="row">
+
+            <div id="visualization-main-container">
+                graph and stuff
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.6/d3.min.js" charset="utf-8"></script>
+
+<script type="text/javascript">
+
+
+var renderVisualization = function(){
+    
+    console.log("calculate render");
+
+    xMovies = d3.extent(window.movieList, function(d){ return Date.parse(d.release_date) } );
+    yMovies = d3.extent([0,5]);
+
+    xScale = d3.scale.linear()
+    .domain(xMovies)
+    .range([0, 250]);
+
+    xAxis = d3.svg.axis()
+        .scale(xScale).orient('bottom')
+        .ticks(window.movieList.length)
+        .tickFormat(function(d){
+            var dateObj = new Date(d);
+            // return dateObj.toDateString();
+            return dateObj.getFullYear();
+        })
+
+    svg = d3.select('#visualization-main-container').append('svg').attr('width', 600).attr('height', 400);
+
+    svg.append('g').attr('class', 'x axis').call(xAxis);            // let the axis do its thing
+
+
+    var rects = svg.selectAll('rect')
+    .data(window.movieList);
+
+    var newRects = rects.enter();
+
+    console.log("render over");
+
+}
+
+
+$(document).ready(function(){
+
+    $.ajax({
+        url: "/api/movies/movies/",
+        beforeSend: function( xhr ) {
+            // xhr.overrideMimeType( "text/plain; charset=x-user-defined" );
+        }
+    }).done(function( data ) {
+        if ( console && console.log ) {
+            console.log( "Sample of data:", data );
+            window.movieList = data.results;
+            renderVisualization();
+        }
+    });
+
+});
+
+</script>
+
+
+
+</body>
+</html>

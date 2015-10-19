@@ -33,28 +33,45 @@
 
 
 var renderVisualization = function(){
-    
+       
     console.log("calculate render");
 
-    xMovies = d3.extent(window.movieList, function(d){ return Date.parse(d.release_date) } );
+    // first = d3.min(window.movieList, function(d){ return Date.parse(d.release_date) });
+    last = new Date(Date.now()).getFullYear()
+
+    xMovies = [ (last-20), last];
     yMovies = d3.extent([0,5]);
 
     xScale = d3.scale.linear()
     .domain(xMovies)
-    .range([0, 250]);
+    .range([0, 700]);
+
+    yScale = d3.scale.linear()
+    .domain([5,0])
+    .range([0,300])
 
     xAxis = d3.svg.axis()
         .scale(xScale).orient('bottom')
-        .ticks(window.movieList.length)
-        .tickFormat(function(d){
-            var dateObj = new Date(d);
-            // return dateObj.toDateString();
-            return dateObj.getFullYear();
-        })
+        .ticks(10)
+        
+    yAxis = d3.svg.axis()
+        .scale(xScale).orient('left')
+        .scale(yScale)
+        .ticks(6)
 
-    svg = d3.select('#visualization-main-container').append('svg').attr('width', 600).attr('height', 400);
 
-    svg.append('g').attr('class', 'x axis').call(xAxis);            // let the axis do its thing
+    svg = d3.select('#visualization-main-container').append('svg').attr('width', 800).attr('height', 400);
+
+    svg.append('g')
+        .attr('class', 'x-axis')
+        .attr('transform', 'translate(' + 50 + ',' + 350 + ')')
+        .call(xAxis); 
+
+
+    svg.append('g')
+        .attr('class', 'y-axis')
+        .attr('transform', 'translate(' + 50 + ',' + 50 + ')')
+        .call(yAxis); 
 
 
     var rects = svg.selectAll('rect')

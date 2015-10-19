@@ -40,14 +40,14 @@ var renderVisualization = function(){
     last = new Date(Date.now()).getFullYear()
 
     xMovies = [ (last-20), last];
-    yMovies = d3.extent([0,5]);
+    yMovies = d3.extent([3,5]);
 
     xScale = d3.scale.linear()
     .domain(xMovies)
     .range([0, 700]);
 
     yScale = d3.scale.linear()
-    .domain([5,0])
+    .domain([5,3])
     .range([0,300])
 
     xAxis = d3.svg.axis()
@@ -74,10 +74,19 @@ var renderVisualization = function(){
         .call(yAxis); 
 
 
-    var rects = svg.selectAll('rect')
-    .data(window.movieList);
+    svg.selectAll("circle")
+        .data(window.movieList)
+        .enter().append("circle")
+        .attr("cx", function(d) { 
+            releaseDate = new Date(d.release_date);
+            return xScale(releaseDate.getFullYear());
+            })
+        .attr("cy", function(d) { 
+            console.log(d.overall_rating)
+            return yScale( parseFloat(d.overall_rating));
+        })
+        .attr("r", 5.5);
 
-    var newRects = rects.enter();
 
     console.log("render over");
 

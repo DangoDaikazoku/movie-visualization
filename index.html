@@ -20,10 +20,15 @@
         <div class="row">
 
             <div id="visualization-main-container">
-                graph and stuff
             </div>
         </div>
     </div>
+
+    <button id="doSOmething">get more data</button>
+    <br>
+    <br>
+    <span id="movie-title">graph title and stuff </span> 
+
 </div>
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
@@ -38,16 +43,16 @@ var renderVisualization = function(){
 
     // first = d3.min(window.movieList, function(d){ return Date.parse(d.release_date) });
     last = new Date(Date.now()).getFullYear()
-
-    xMovies = [ (last-20), last];
-    yMovies = d3.extent([3,5]);
+    years = 10;
+    xMovies = [ (last-years), last];
+    // yMovies = d3.extent([3,5]);
 
     xScale = d3.scale.linear()
     .domain(xMovies)
     .range([0, 700]);
 
     yScale = d3.scale.linear()
-    .domain([5,3])
+    .domain([4.5,2.5])
     .range([0,300])
 
     xAxis = d3.svg.axis()
@@ -60,7 +65,7 @@ var renderVisualization = function(){
         .ticks(6)
 
 
-    svg = d3.select('#visualization-main-container').append('svg').attr('width', 800).attr('height', 400);
+    window.svg = d3.select('#visualization-main-container').append('svg').attr('width', 800).attr('height', 400);
 
     svg.append('g')
         .attr('class', 'x-axis')
@@ -85,7 +90,7 @@ var renderVisualization = function(){
             console.log(d.overall_rating)
             return yScale( parseFloat(d.overall_rating));
         })
-        .attr("r", 5.5);
+        .attr("r", 2.5);
 
 
     console.log("render over");
@@ -96,7 +101,7 @@ var renderVisualization = function(){
 $(document).ready(function(){
 
     $.ajax({
-        url: "http://www.desimartini.com/api/movies/movies/",
+        url: "http://www.desimartini.com/api/movies/movies/?no_records=10",
         beforeSend: function( xhr ) {
             // xhr.overrideMimeType( "text/plain; charset=x-user-defined" );
         }
@@ -108,7 +113,79 @@ $(document).ready(function(){
         }
     });
 
+
+    $("#doSOmething").click(function(){
+        if(typeof window.pageCounter === "undefined" )
+            window.pageCounter = 2;
+        else window.pageCounter += 1;
+
+        $.ajax({
+            url: "http://www.desimartini.com/api/movies/movies/?region=bollywood&no_records=10&page="+window.pageCounter,
+            beforeSend: function( xhr ) {
+                // xhr.overrideMimeType( "text/plain; charset=x-user-defined" );
+            }
+        }).done(function( data ) {
+            if ( console && console.log ) {
+                console.log( "Sample of data:", data );
+            }
+            // window.movieList = window.movieList.concat(data.results);
+
+            console.log("window", window.movieList);
+
+            // svg.selectAll("circle")
+            //     .data(window.movieList)
+            //     .exit().remove();
+            // return;
+
+            window.movieList = data.results;
+
+            ratingCountScale = d3.scale.linear()
+            .domain(d3.extent(window.movieList, function(d){return d.rating_count}))
+            .range([3,6])
+
+            wtwScale = d3.scale.linear()
+            .domain(d3.extent(window.movieList, function(d){return d.want_to_watch_count}))
+            .range(["red","green"])
+
+            svg.selectAll("circle")
+                .data(window.movieList)
+                .enter().append("circle")
+                .attr('class', 'movie-circle')
+                .on("mouseenter", showSomething)
+
+
+            svg.selectAll("circle")
+                .data(window.movieList)
+                .on("mouseenter", showSomething)
+                .attr('class', 'movie-circle')
+                .transition() 
+                .duration(1000)
+                .attr("cx", function(d) { 
+                        var releaseDate = new Date(d.release_date);
+                        return xScale(releaseDate.getFullYear());
+                    })
+                .attr("cy", function(d) { 
+                        return yScale( parseFloat(d.overall_rating));
+                    })
+                .attr("r", function(d){
+                    return ratingCountScale(d.rating_count);
+                })
+                .attr("fill", function(d){
+                    return wtwScale(d.want_to_watch_count);
+                })
+
+        }); // ajax callback
+
+    }); // do somehting
+
 });
+
+
+function showSomething(d){
+    // console.log(d.title);
+    $("#movie-title").html(d.title);
+}
+
 
 </script>
 

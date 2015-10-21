@@ -25,6 +25,7 @@
     </div>
 
     <button id="doSOmething">get more data</button>
+    <button id="doAxes">modify axes</button>
     <br>
     <br>
     <span id="movie-title">graph title and stuff </span> 
@@ -35,6 +36,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.6/d3.min.js" charset="utf-8"></script>
 
 <script type="text/javascript">
+
 
 
 var renderVisualization = function(){
@@ -82,6 +84,7 @@ var renderVisualization = function(){
     svg.selectAll("circle")
         .data(window.movieList)
         .enter().append("circle")
+        .on("mouseenter", showSomething)
         .attr("cx", function(d) { 
             releaseDate = new Date(d.release_date);
             return xScale(releaseDate.getFullYear());
@@ -112,6 +115,11 @@ $(document).ready(function(){
             renderVisualization();
         }
     });
+
+
+    $("#doAxes").click(function(){
+
+    })
 
 
     $("#doSOmething").click(function(){
@@ -156,7 +164,7 @@ $(document).ready(function(){
 
             svg.selectAll("circle")
                 .data(window.movieList)
-                .on("mouseenter", showSomething)
+                .on("mouseenter", mapCeleb)
                 .attr('class', 'movie-circle')
                 .transition() 
                 .duration(1000)
@@ -183,9 +191,33 @@ $(document).ready(function(){
 
 function showSomething(d){
     // console.log(d.title);
-    $("#movie-title").html(d.title);
+
+    var htmlContent = "<br><span>"+ d.overall_rating +"</span>"
+    $("#movie-title").html(d.title + htmlContent);
 }
 
+function mapCeleb(d){
+
+    // window.movieList = window.movieList.map(function(obj){
+        // if(intersect(celebList, obj.celebs).size()
+    // })
+
+    var htmlContent = "<br><span>"+ d.overall_rating +"</span>"
+    $("#movie-title").html("hooloa hoola"  + d.title + htmlContent);
+
+}
+
+// auxillary functions
+
+function intersect(a, b) {
+
+    var t;
+    if (b.length > a.length) t = b, b = a, a = t; 
+    return a.filter(function (e) {
+        if (b.indexOf(e) !== -1) return true;
+    });
+
+}
 
 </script>
 
